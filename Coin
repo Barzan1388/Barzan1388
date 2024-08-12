@@ -1,0 +1,110 @@
+import React, { useState, useEffect } from 'react';
+
+const NightSky = () => {
+  const [stars, setStars] = useState([]);
+  const [moonPhase, setMoonPhase] = useState(0);
+  const [eyesOpen, setEyesOpen] = useState(true);
+
+  useEffect(() => {
+    // Create stars
+    const newStars = Array.from({ length: 100 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+    }));
+    setStars(newStars);
+
+    // Animate stars
+    const starInterval = setInterval(() => {
+      setStars(prevStars =>
+        prevStars.map(star => ({
+          ...star,
+          y: (star.y + 0.1) % 100,
+        }))
+      );
+    }, 50);
+
+    // Animate moon glow
+    const moonInterval = setInterval(() => {
+      setMoonPhase((prev) => (prev + 1) % 100);
+    }, 50);
+
+    // Blink eyes
+    const blinkInterval = setInterval(() => {
+      setEyesOpen((prev) => !prev);
+    }, 3000);
+
+    return () => {
+      clearInterval(starInterval);
+      clearInterval(moonInterval);
+      clearInterval(blinkInterval);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full h-screen bg-gradient-to-b from-indigo-900 to-black overflow-hidden">
+      {/* Stars */}
+      {stars.map((star, index) => (
+        <div
+          key={index}
+          className="absolute bg-white rounded-full animate-twinkle"
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+          }}
+        />
+      ))}
+
+      {/* Moon */}
+      <div className="absolute top-8 right-8">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          {/* Moon glow */}
+          <circle cx="100" cy="100" r="98" fill="url(#moonGlow)" />
+          {/* Moon surface */}
+          <circle cx="100" cy="100" r="80" fill="url(#moonSurface)" />
+          {/* Moon craters */}
+          <circle cx="70" cy="80" r="10" fill="rgba(180,180,180,0.3)" />
+          <circle cx="130" cy="60" r="8" fill="rgba(180,180,180,0.3)" />
+          <circle cx="110" cy="130" r="12" fill="rgba(180,180,180,0.3)" />
+          
+          {/* Eyes */}
+          <g transform="translate(60, 70) scale(0.7)">
+            {/* Left eye */}
+            <circle cx="30" cy="30" r="20" fill="#333" />
+            {eyesOpen && <circle cx="35" cy="25" r="5" fill="#FFF" />}
+            {!eyesOpen && <line x1="15" y1="30" x2="45" y2="30" stroke="#333" strokeWidth="5" />}
+          </g>
+          <g transform="translate(110, 70) scale(0.7)">
+            {/* Right eye */}
+            <circle cx="30" cy="30" r="20" fill="#333" />
+            {eyesOpen && <circle cx="35" cy="25" r="5" fill="#FFF" />}
+            {!eyesOpen && <line x1="15" y1="30" x2="45" y2="30" stroke="#333" strokeWidth="5" />}
+          </g>
+          
+          {/* Gradients */}
+          <defs>
+            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(255,255,200,0.6)" />
+              <stop offset={`${moonPhase}%`} stopColor="rgba(255,255,200,0.3)" />
+              <stop offset="100%" stopColor="rgba(255,255,200,0)" />
+            </radialGradient>
+            <radialGradient id="moonSurface" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#FFFFD0" />
+              <stop offset="50%" stopColor="#F0F0C0" />
+              <stop offset="100%" stopColor="#E0E0B0" />
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* Coming Soon Text */}
+      <div className="absolute bottom-8 w-full text-center">
+        <h2 className="text-3xl font-serif text-white shadow-md">Coming Soon</h2>
+      </div>
+    </div>
+  );
+};
+
+export default NightSky;
